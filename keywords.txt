@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring DFRobot_ISRModule_ESP32S3
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_ISRModule_I2C	KEYWORD1
+DFRobot_ISRModule_UART	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+
+addCommandWord	KEYWORD2
+delCommandWord	KEYWORD2
+getKeywordID	KEYWORD2
+
+setSpeechModelType	KEYWORD2
+setWakeupTime	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MODULE_I2C_ADDRESS	LITERAL1
+UART_BAUDRATE	LITERAL1
+
+eSpeechModelSTDBY	LITERAL1
+eSpeechModelChinese	LITERAL1
+eSpeechModelEnglish	LITERAL1
