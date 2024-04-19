@@ -56,7 +56,7 @@ void setup()
   /*!
    * note:
    * The numbering of command words starts from 1 (0 is the wake-up word), Chinese is added in pinyin form.
-   * Command word numbers range from 1 to 254, and the byte size of each entry should be less than 120.
+   * Command word numbers range from 1 to 200, and the byte size of each entry should be less than 120.
    * Mixing Chinese and English, including Arabic numerals and special characters, is not supported.
    * Command words with incorrect formats may result in model reset.
    * Please avoid adding command words with the same number, and you can re-add them after deletion.
@@ -64,11 +64,12 @@ void setup()
    * For Chinese Pinyin conversion, you can use the tools in the library directory. For details, refer to:
    * DFRobot_ISRModule_ESP32S3\resources\tool\README.md
    */
+  isr.addCommandWord(0, "hai mai kun");   // wakeword
   isr.addCommandWord(1, "jing tian tian qi zen me yang");
   isr.addCommandWord(2, "ming tian you yu ma");
   isr.addCommandWord(3, "she zhi ming tian qi dian nao zhong");
 
-  // isr.delCommandWord(1);   // Example Delete the specified ID command word
+  // isr.delCommandWord(1);   // Example Delete the specified ID command word, note: All command words are deleted when numbered 0xFF
   // isr.delCommandWord("she zhi ming tian qi dian nao zhong");   // Deletes the specified name command word
   Serial.println("------------detect start------------\n");
 }

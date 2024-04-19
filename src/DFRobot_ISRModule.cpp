@@ -20,7 +20,7 @@ bool DFRobot_ISRModule::begin(eSpeechModelType_t type, uint8_t duration)
   data[0] = duration;
   data[1] = type;
   writeReg(WAKEUP_TIME_REG, data, 2);
-  delay(1000);   // Wait for the initialization to complete
+  delay(1500);   // Wait for the initialization to complete
   return true;
 }
 
@@ -38,17 +38,22 @@ void DFRobot_ISRModule::setWakeupTime(uint8_t duration)
 bool DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 {
   int length = str.length();
-  char data[30] = { (char)num, (char)length };   // Only 32 bytes can be sent at a time, and the receive limit is 28 stable
+  uint8_t id = num + 1;
+  if ((201 < id) || (0 == length)) {
+    return false;
+  }
+  char data[30] = { (char)id, (char)length };   // Only 32 bytes can be sent at a time, and the receive limit is 28 stable
   DBG(length);
 
   for (int i = 0; i < length; i += 23) {
     String chunk = str.substring(i, min(i + 23, length));
     // strcat(data, chunk.c_str());
-    strlcat(data, chunk.c_str(), sizeof(data));
+    strlcat(&data[2], chunk.c_str(), sizeof(data));
     DBG(chunk);
     DBG(strlen(data));
-    // DBG(data);
-    writeReg(ADD_CMD_REG, data, strlen(data));
+    DBG(strlen(chunk.c_str()));
+    DBG(data);
+    writeReg(ADD_CMD_REG, data, 2 + strlen(chunk.c_str()));
     data[2] = 0;
   }
 
@@ -60,11 +65,8 @@ bool DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
     for (int i = 0; i < length; i += 23) {
       String chunk = str.substring(i, min(i + 23, length));
       // strcat(data, chunk.c_str());
-      strlcat(data, chunk.c_str(), sizeof(data));
-      DBG(chunk);
-      DBG(strlen(data));
-      // DBG(data);
-      writeReg(ADD_CMD_REG, data, strlen(data));
+      strlcat(&data[2], chunk.c_str(), sizeof(data));
+      writeReg(ADD_CMD_REG, data, 2 + strlen(chunk.c_str()));
       data[2] = 0;
     }
     readReg(CMD_ERROR_REG, &ret, 1);
@@ -79,12 +81,16 @@ bool DFRobot_ISRModule::addCommandWord(uint8_t num, String str)
 
 void DFRobot_ISRModule::delCommandWord(uint8_t num)
 {
-  writeReg(DEL_CMD_BY_ID_REG, &num, 1);
+  uint8_t id = num + 1;
+  writeReg(DEL_CMD_BY_ID_REG, &id, 1);
 }
 
 void DFRobot_ISRModule::delCommandWord(String str)
 {
   int length = str.length();
+  if (0 == length) {
+    return ;
+  }
   char data[30] = { (char)length };   // Only 32 bytes can be sent at a time
   for (int i = 0; i < length; i += 23) {
     String chunk = str.substring(i, min(i + 23, length));
@@ -111,8 +117,12 @@ uint8_t DFRobot_ISRModule::getKeywordID(void)
 {
   uint8_t id = 0xFF;
   readReg(VOICE_ID_REG, &id, 1);
-  // DBG(id);
-  return id;
+  if(0xFF != id) {DBG(id);}
+  if ((201 < id) || (0 == id)) {
+    return 0xFF;
+  } else {
+    return (id - 1);
+  }
 }
 
 DFRobot_ISRModule_I2C::DFRobot_ISRModule_I2C(TwoWire* pWire, uint8_t addr)
@@ -166,7 +176,7 @@ uint8_t DFRobot_ISRModule_I2C::readReg(uint8_t reg, void* pBuf, size_t size)
     return 1;
   }
   delay(50);
-  _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)(size+1));
+  _pWire->requestFrom((uint8_t)_deviceAddr, (uint8_t)(size + 1));
   _pWire->read();   // Invalid first may be error data bytes only i2c
   size_t i = 0;
   while (_pWire->available()) {
@@ -221,9 +231,18 @@ void DFRobot_ISRModule_UART::writeReg(uint8_t reg, void* pBuf, size_t size)
   _serial->write(CMD_WRITE_REGBUF);
   _serial->write(reg);
   _serial->write(size);
+    // Serial.print(CMD_WRITE_REGBUF, HEX);
+    // Serial.print(" ");
+    // Serial.print(reg, HEX);
+    // Serial.print(" ");
+    // Serial.print(size, HEX);
+    // Serial.print(" ");
   for (size_t i = 0; i < size; i++) {
     _serial->write(_pBuf[i]);
+    // Serial.print(_pBuf[i], HEX);
+    // Serial.print(" ");
   }
+  // Serial.println();
   delay(500);
 }
 

@@ -62,7 +62,7 @@
   /**
    * @fn delCMDByNUM
    * @brief 删除关键词（编号 or 词条）
-   * @param num - 命令词编号
+   * @param num - 命令词编号, 注: 编号为0xFF时删除所有命令词
    * @param str - 命令词词条
    * @return None
    */

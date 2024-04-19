@@ -17,13 +17,14 @@
 #ifdef I2C_COMMUNICATION
 DFRobot_ISRModule_I2C isr(&Wire, MODULE_I2C_ADDRESS);
 #else
-/* ---------------------------------------------------------------------------------------------------------------------
-  *    board   |             MCU                | Leonardo/Mega2560/M0 |    UNO    | ESP8266 | ESP32 |  microbit  |   m0  |
-  *     VCC    |            3.3V/5V             |        VCC           |    VCC    |   VCC   |  VCC  |     X      |  vcc  |
-  *     GND    |              GND               |        GND           |    GND    |   GND   |  GND  |     X      |  gnd  |
-  *     RX     |              TX                |     Serial1 TX1      |     5     |   5/D6  |  D2   |     X      |  tx1  |
-  *     TX     |              RX                |     Serial1 RX1      |     4     |   4/D7  |  D3   |     X      |  rx1  |
-  * ----------------------------------------------------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------------------------- *
+ *   Sensor   | Connect line | Leonardo/Mega2560 |   UNO   | ESP8266 | ESP32 | microbit |  m0   *
+ * -------------------------------------------------------------------------------------------- *
+ *     VCC    | ===========> |        5V         |   5V    |   3.3V  |  3.3V |    X     |  3.3V *
+ *     GND    | ===========> |        GND        |   GND   |   GND   |  GND  |    X     |  GND  *
+ *     RX     | ===========> |        TX1        |    5    |   5/D6  |  D2   |    X     |  TX1  *
+ *     TX     | ===========> |        RX1        |    4    |   4/D7  |  D3   |    X     |  RX1  *
+ * -------------------------------------------------------------------------------------------- */
 /* Baud rate cannot be changed  */
 #if defined(ARDUINO_AVR_UNO) || defined(ESP8266)
 SoftwareSerial mySerial(/*rx*/ 4, /*tx*/ 5);
@@ -56,17 +57,18 @@ void setup()
   /*!
    * note:
    * The numbering of command words starts from 1 (0 is the wake-up word).
-   * Command word numbers range from 1 to 254, and the byte size of each entry should be less than 120.
+   * Command word numbers range from 1 to 200, and the byte size of each entry should be less than 120.
    * Mixing Chinese and English, including Arabic numerals and special characters, is not supported.
    * Command words with incorrect formats may result in model reset.
    * Please avoid adding command words with the same number, and you can re-add them after deletion.
    * Do not add command words during wake up.
    */
+  isr.addCommandWord(0, "hello world");   // wakeword
   isr.addCommandWord(1, "tell me a joke");
   isr.addCommandWord(2, "turn on the computer");
   isr.addCommandWord(3, "turn off the computer");
 
-  // isr.delCommandWord(1);   // Example Delete the specified ID command word
+  // isr.delCommandWord(1);   // Example Delete the specified ID command word, note: All command words are deleted when numbered 0xFF
   // isr.delCommandWord("turn on the computer");   // Deletes the specified name command word
 
   Serial.println("------------detect start------------\n");

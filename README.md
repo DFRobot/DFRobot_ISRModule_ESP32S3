@@ -62,7 +62,7 @@ There are two methods for using this library:<br>
   /**
    * @fn delCMDByNUM
    * @brief Delete keyword (number or entry)
-   * @param num - Command word number
+   * @param num - Command word number, note: All command words are deleted when numbered 0xFF
    * @param str - Command word entry
    * @return None
    */
